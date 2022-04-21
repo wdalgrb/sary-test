@@ -22,8 +22,10 @@ export default class HomeScreen extends Component<any, any> {
     super(props);
     this.state = {
       isLoading: true,
+      firstLoading: true,
       employees: [],
       filterOpacity: 1,
+      qsItems: {},
     };
   }
   componentDidMount() {
@@ -35,10 +37,15 @@ export default class HomeScreen extends Component<any, any> {
     this.setState({ isLoading: true });
 
     if (!qsItems.qs) {
-      this.setState({ isLoading: false, employees: employeeData });
+      this.setState({
+        isLoading: false,
+        firstLoading: false,
+        employees: employeeData,
+      });
 
       return;
     }
+    this.setState({ qsItems });
 
     const selectedData: any = [];
     for (let index = 0; index < employeeData.length; index++) {
@@ -69,8 +76,12 @@ export default class HomeScreen extends Component<any, any> {
         selectedData.push(employee);
       }
     }
-
-    this.setState({ isLoading: false, employees: selectedData });
+    this.setState({
+      isLoading: false,
+      employees: selectedData,
+      qsItems,
+      firstLoading: false,
+    });
   };
   onSearchClicked = () => {
     const filterOpacity = this.state.filterOpacity === 1 ? 0 : 1;
@@ -121,67 +132,73 @@ export default class HomeScreen extends Component<any, any> {
     return null;
   };
   render() {
-    const { employees, isLoading, filterOpacity } = this.state;
+    const { employees, isLoading, filterOpacity, qsItems, firstLoading } =
+      this.state;
 
     return (
       <div className="container">
-        <Grid container spacing={2}>
-          <Grid item md={3} xs={12}>
-            <Filters
-              style={{
-                opacity: filterOpacity,
-                height: filterOpacity === 1 ? "inherit" : 0,
-              }}
-              onFilterItems={this.onFilterItems}
-            />
-          </Grid>
-          <Grid item md={filterOpacity === 1 ? 8 : 12} xs={12}>
-            <div className="dataWrapp">
-              <TableContainer component={Paper}>
-                <Header onSearchClicked={this.onSearchClicked} />
-                <Loading status={isLoading}>
-                  <IsEmpty empty={!employees[0]} message="No Data was Found">
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Name</TableCell>
-                          <TableCell>Phone</TableCell>
-                          <TableCell>Email</TableCell>
-                          <TableCell style={{ width: 74 }}>Date</TableCell>
-                          <TableCell>Country</TableCell>
-                          <TableCell>Company</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {employees.map((employee: EmployeeType) => (
-                          <TableRow
-                            key={employee.id}
-                            sx={{
-                              "&:last-child td, &:last-child th": { border: 0 },
-                            }}
-                          >
-                            <TableCell component="th" scope="row">
-                              {employee.name}
-                            </TableCell>
-                            <TableCell>{employee.phone}</TableCell>
-                            <TableCell>
-                              <a href={`mailto: ${employee.email}`}>
-                                {employee.email}
-                              </a>
-                            </TableCell>
-                            <TableCell>{employee.date}</TableCell>
-                            <TableCell>{employee.country}</TableCell>
-                            <TableCell>{employee.company}</TableCell>
+        <Loading status={firstLoading}>
+          <Grid container spacing={2}>
+            <Grid item md={3} xs={12}>
+              <Filters
+                style={{
+                  opacity: filterOpacity,
+                  height: filterOpacity === 1 ? "inherit" : 0,
+                }}
+                qsItems={qsItems}
+                onFilterItems={this.onFilterItems}
+              />
+            </Grid>
+            <Grid item md={filterOpacity === 1 ? 8 : 12} xs={12}>
+              <div className="dataWrapp">
+                <TableContainer component={Paper}>
+                  <Header onSearchClicked={this.onSearchClicked} />
+                  <Loading status={isLoading}>
+                    <IsEmpty empty={!employees[0]} message="No Data was Found">
+                      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Phone</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell style={{ width: 74 }}>Date</TableCell>
+                            <TableCell>Country</TableCell>
+                            <TableCell>Company</TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </IsEmpty>
-                </Loading>
-              </TableContainer>
-            </div>
+                        </TableHead>
+                        <TableBody>
+                          {employees.map((employee: EmployeeType) => (
+                            <TableRow
+                              key={employee.id}
+                              sx={{
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell component="th" scope="row">
+                                {employee.name}
+                              </TableCell>
+                              <TableCell>{employee.phone}</TableCell>
+                              <TableCell>
+                                <a href={`mailto: ${employee.email}`}>
+                                  {employee.email}
+                                </a>
+                              </TableCell>
+                              <TableCell>{employee.date}</TableCell>
+                              <TableCell>{employee.country}</TableCell>
+                              <TableCell>{employee.company}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </IsEmpty>
+                  </Loading>
+                </TableContainer>
+              </div>
+            </Grid>
           </Grid>
-        </Grid>
+        </Loading>
       </div>
     );
   }

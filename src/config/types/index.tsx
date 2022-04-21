@@ -6,6 +6,8 @@ export interface EmployeeType {
   company: string;
   country: string;
   date: string;
+  user_phone?: string;
+  user_name?: string;
 }
 
 export interface filterItemsType {

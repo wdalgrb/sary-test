@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { Button, MenuItem, TextField } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import "./Filters.style.css";
@@ -8,6 +8,7 @@ import { EmployeeType } from "../../../config/types";
 interface Props {
   style: object;
   onFilterItems: (items: EmployeeType) => void;
+  qsItems: EmployeeType;
 }
 const Filters = (props: Props) => {
   const app: any = useSelector<any>((state) => state.app);
@@ -28,6 +29,17 @@ const Filters = (props: Props) => {
       date,
     });
   };
+
+  useEffect(() => {
+    setCompany(props.qsItems.company || "");
+    setEmail(props.qsItems.email || "");
+    setCountry(props.qsItems.country || "");
+    setDate(props.qsItems.date || "");
+    setPhone(props.qsItems.user_phone || "");
+    setName(props.qsItems.user_name || "");
+
+    return () => {};
+  }, []);
 
   return (
     <div className="filter-area" style={props.style}>
@@ -85,6 +97,7 @@ const Filters = (props: Props) => {
           select
           style={{ width: "96%" }}
         >
+          <MenuItem value={"null"}>Select Country</MenuItem>
           {countriesList.map((option: any) => (
             <MenuItem key={option.Alpha3Code} value={option.Alpha3Code}>
               {option.Name}
